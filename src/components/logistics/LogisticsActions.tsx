@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Truck, CheckCircle2, ShieldCheck, AlertCircle, Loader2, X, Thermometer } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
 
 interface LogisticsActionsProps {
   shipment: {
@@ -141,10 +142,8 @@ export function LogisticsActions({ shipment }: LogisticsActionsProps) {
       )}
 
       {/* Dispatch Modal */}
-      {isDispatchOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
+      <Modal isOpen={isDispatchOpen} onClose={() => setIsDispatchOpen(false)} maxWidth="max-w-md">
+        <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-sm">Logistics Departure Checklist</h3>
                 <p className="text-[11px] text-slate-300">
@@ -213,15 +212,11 @@ export function LogisticsActions({ shipment }: LogisticsActionsProps) {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Delivery and QC Modal */}
-      {isDeliveryOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
+      <Modal isOpen={isDeliveryOpen} onClose={() => setIsDeliveryOpen(false)} maxWidth="max-w-lg">
+        <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
               <div>
                 <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">
                   Quality Handover Gate
@@ -375,9 +370,7 @@ export function LogisticsActions({ shipment }: LogisticsActionsProps) {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </Modal>
     </div>
   );
 }

@@ -135,11 +135,11 @@ export default async function HarvestTraceabilityPage({
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase block font-semibold">Planted Date</span>
-                  <p className="font-bold text-[#0F1D2F] mt-0.5">{cycle.plantedDate.toISOString().slice(0, 10)}</p>
+                  <p className="font-bold text-[#0F1D2F] mt-0.5">{(cycle.plantedDate instanceof Date ? cycle.plantedDate : new Date(cycle.plantedDate)).toISOString().slice(0, 10)}</p>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase block font-semibold">Harvest Date</span>
-                  <p className="font-bold text-[#0F1D2F] mt-0.5">{lot.harvestRecord.harvestDate.toISOString().slice(0, 10)}</p>
+                  <p className="font-bold text-[#0F1D2F] mt-0.5">{(lot.harvestRecord.harvestDate instanceof Date ? lot.harvestRecord.harvestDate : new Date(lot.harvestRecord.harvestDate)).toISOString().slice(0, 10)}</p>
                 </div>
               </div>
 

@@ -98,7 +98,7 @@ export default async function OrdersPage() {
                         <td className="px-5 py-3.5 font-mono font-bold text-slate-800">
                           {order.orderNumber}
                           <p className="text-[11px] text-slate-400 font-sans font-normal">
-                            {order.createdAt.toISOString().slice(0, 10)}
+                            {(order.createdAt instanceof Date ? order.createdAt : new Date(order.createdAt)).toISOString().slice(0, 10)}
                           </p>
                         </td>
                         <td className="px-4 py-3.5">

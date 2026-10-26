@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, CheckCircle2, Loader2, X, AlertCircle, ShieldCheck } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
 
 interface CropCycleOption {
   id: string;
@@ -75,10 +76,9 @@ export function GenerateAdvisoryModal({ cropCycles }: GenerateAdvisoryModalProps
         <span>Generate AI Advisory</span>
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-xs">
-            <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} maxWidth="max-w-lg">
+        <div className="text-xs">
+          <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
               <div>
                 <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">
                   Precision Agronomy Generator
@@ -191,9 +191,8 @@ export function GenerateAdvisoryModal({ cropCycles }: GenerateAdvisoryModalProps
                 </button>
               </div>
             </form>
-          </div>
         </div>
-      )}
+      </Modal>
     </>
   );
 }

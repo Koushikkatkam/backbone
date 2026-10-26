@@ -64,7 +64,7 @@ export default async function BuybackPage() {
                       {offer.offerCode}
                     </span>
                     <span className="text-xs font-semibold text-slate-500">
-                      Valid: {offer.validFrom.toISOString().slice(0, 10)} &rarr; {offer.validUntil.toISOString().slice(0, 10)}
+                      Valid: {(offer.validFrom instanceof Date ? offer.validFrom : new Date(offer.validFrom)).toISOString().slice(0, 10)} &rarr; {(offer.validUntil instanceof Date ? offer.validUntil : new Date(offer.validUntil)).toISOString().slice(0, 10)}
                     </span>
                   </div>
                   <CardTitle className="mt-2 text-base text-[#0F1D2F]">{offer.title}</CardTitle>
@@ -133,12 +133,12 @@ export default async function BuybackPage() {
                           className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                         >
                           <div>
-                            <span className="font-bold text-[#0F1D2F]">{r.farmerProfile.user.name}</span>
+                            <span className="font-bold text-[#0F1D2F]">{r.farmerProfile?.user?.name || "Farmer Partner"}</span>
                             <span className="text-slate-500 text-[11px] ml-2">
-                              ({r.farmerProfile.village}, {r.farmerProfile.district})
+                              ({r.farmerProfile?.village || "Village"}, {r.farmerProfile?.district || "Telangana"})
                             </span>
                             <p className="text-[10px] text-slate-400 mt-0.5">
-                              Signed: {r.signedDate.toISOString().slice(0, 10)}
+                              Signed: {(r.signedDate instanceof Date ? r.signedDate : new Date(r.signedDate)).toISOString().slice(0, 10)}
                             </p>
                           </div>
                           <div className="flex items-center gap-3">

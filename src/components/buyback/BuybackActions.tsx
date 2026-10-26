@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { HandCoins, Loader2, X, CheckCircle2, AlertCircle, ArrowRight, ShieldCheck } from "lucide-react";
 import { formatINR } from "@/lib/utils";
+import { Modal } from "@/components/ui/Modal";
 
 interface CommitBuybackModalProps {
   offer: {
@@ -79,10 +80,9 @@ export function CommitBuybackModal({ offer }: CommitBuybackModalProps) {
         <span>Sign Off-Take Agreement</span>
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-xs">
-            <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} maxWidth="max-w-md">
+        <div className="text-xs">
+          <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
               <div>
                 <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider">
                   Guaranteed Procurement Floor
@@ -174,9 +174,8 @@ export function CommitBuybackModal({ offer }: CommitBuybackModalProps) {
                 </button>
               </div>
             </form>
-          </div>
         </div>
-      )}
+      </Modal>
     </>
   );
 }

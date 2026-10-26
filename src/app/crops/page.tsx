@@ -160,7 +160,7 @@ export default async function CropsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3.5 text-slate-600 font-mono text-[11px]">
-                        {c.plantedDate.toISOString().slice(5, 10)} &rarr; {c.expectedHarvestDate.toISOString().slice(5, 10)}
+                        {(c.plantedDate instanceof Date ? c.plantedDate : new Date(c.plantedDate)).toISOString().slice(5, 10)} &rarr; {(c.expectedHarvestDate instanceof Date ? c.expectedHarvestDate : new Date(c.expectedHarvestDate)).toISOString().slice(5, 10)}
                       </td>
                       <td className="px-4 py-3.5 font-bold text-[#0F1D2F]">
                         {c.targetYieldKg} kg
@@ -193,7 +193,7 @@ export default async function CropsPage() {
                   {obs.cropCycle.cropCatalogue.name} &bull; Stage: {obs.growthStage}
                 </span>
                 <span className="font-mono text-slate-400 text-[11px]">
-                  {obs.observedDate.toISOString().slice(0, 10)}
+                  {(obs.observedDate instanceof Date ? obs.observedDate : new Date(obs.observedDate)).toISOString().slice(0, 10)}
                 </span>
               </div>
               <p className="text-slate-600">{obs.notes}</p>

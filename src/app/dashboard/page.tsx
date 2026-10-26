@@ -461,7 +461,7 @@ export default async function DashboardPage() {
                           {cycle.targetYieldKg} kg
                         </td>
                         <td className="px-4 py-3.5 text-slate-600 font-mono text-[11px]">
-                          {cycle.expectedHarvestDate.toISOString().slice(0, 10)}
+                          {(cycle.expectedHarvestDate instanceof Date ? cycle.expectedHarvestDate : new Date(cycle.expectedHarvestDate)).toISOString().slice(0, 10)}
                         </td>
                       </tr>
                     ))}
@@ -573,7 +573,7 @@ export default async function DashboardPage() {
                     <div className="flex items-center justify-between">
                       <span className="font-mono font-bold text-slate-800">{a.action}</span>
                       <span className="text-[10px] text-slate-400 font-mono">
-                        {a.timestamp.toISOString().slice(11, 16)} UTC
+                        {(a.timestamp instanceof Date ? a.timestamp : new Date(a.timestamp)).toISOString().slice(11, 16)} UTC
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-600 mt-0.5 line-clamp-2">{a.reason}</p>

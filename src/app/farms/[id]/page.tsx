@@ -192,11 +192,11 @@ export default async function FarmDetailPage({
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 text-xs text-slate-600">
                       <div>
                         <span className="text-slate-400 block text-[10px] uppercase">Planted Date</span>
-                        <span className="font-semibold text-slate-800">{cycle.plantedDate.toISOString().slice(0, 10)}</span>
+                        <span className="font-semibold text-slate-800">{(cycle.plantedDate instanceof Date ? cycle.plantedDate : new Date(cycle.plantedDate)).toISOString().slice(0, 10)}</span>
                       </div>
                       <div>
                         <span className="text-slate-400 block text-[10px] uppercase">Expected Harvest</span>
-                        <span className="font-semibold text-slate-800">{cycle.expectedHarvestDate.toISOString().slice(0, 10)}</span>
+                        <span className="font-semibold text-slate-800">{(cycle.expectedHarvestDate instanceof Date ? cycle.expectedHarvestDate : new Date(cycle.expectedHarvestDate)).toISOString().slice(0, 10)}</span>
                       </div>
                       <div>
                         <span className="text-slate-400 block text-[10px] uppercase">Target Yield</span>
@@ -226,7 +226,7 @@ export default async function FarmDetailPage({
                 <div key={log.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-[#0F1D2F]">{log.category}</span>
-                    <span className="text-slate-500 font-mono text-[11px]">{log.performedAt.toISOString().slice(0, 10)}</span>
+                    <span className="text-slate-500 font-mono text-[11px]">{(log.performedAt instanceof Date ? log.performedAt : new Date(log.performedAt)).toISOString().slice(0, 10)}</span>
                   </div>
                   <p className="text-slate-600 mt-1">{log.description}</p>
                   <p className="text-[11px] text-slate-500 mt-2 font-medium">

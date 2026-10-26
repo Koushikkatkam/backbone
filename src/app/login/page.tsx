@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { DEMO_USERS, DemoUserOption } from "@/lib/constants";
 import { PrototypeBanner } from "@/components/ui/PrototypeBanner";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
@@ -10,7 +9,6 @@ import { ShieldCheck, UserCheck, Sprout } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -24,7 +22,7 @@ export default function LoginPage() {
         body: JSON.stringify({ userId: user.id }),
       });
       if (res.ok) {
-        window.location.href = user.primaryActionUrl;
+        window.location.assign(user.primaryActionUrl);
         return;
       } else {
         const data = await res.json().catch(() => ({}));

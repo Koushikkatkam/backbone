@@ -58,7 +58,7 @@ export default async function AuditTrailPage() {
                 {auditLogs.map((log) => (
                   <tr key={log.id} className="hover:bg-slate-50 transition-colors font-mono">
                     <td className="px-5 py-3.5 text-slate-500 text-[11px]">
-                      {log.timestamp.toISOString().slice(0, 19).replace("T", " ")}
+                      {(log.timestamp instanceof Date ? log.timestamp : new Date(log.timestamp)).toISOString().slice(0, 19).replace("T", " ")}
                     </td>
                     <td className="px-4 py-3.5">
                       <span className="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-[11px]">

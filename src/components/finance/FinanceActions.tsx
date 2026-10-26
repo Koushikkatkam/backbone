@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Download, CheckCircle2, AlertCircle, Loader2, X, Zap, ShieldCheck } from "lucide-react";
 import { formatINR } from "@/lib/utils";
+import { Modal } from "@/components/ui/Modal";
 
 interface DisbursePayableButtonProps {
   payable: {
@@ -68,10 +69,9 @@ export function DisbursePayableButton({ payable }: DisbursePayableButtonProps) {
         <span>Disburse 24h Payout</span>
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-xs">
-            {/* Header */}
+      <Modal isOpen={isOpen} onClose={handleClose} maxWidth="max-w-md">
+        <div className="text-xs">
+          {/* Header */}
             <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
               <div>
                 <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider">
@@ -203,9 +203,8 @@ export function DisbursePayableButton({ payable }: DisbursePayableButtonProps) {
                 </div>
               )}
             </div>
-          </div>
         </div>
-      )}
+      </Modal>
     </>
   );
 }

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PlusCircle, Loader2, X, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
 
 interface CropCycleOption {
   id: string;
@@ -93,10 +94,8 @@ export function RegisterHarvestModal({ cropCycles }: RegisterHarvestModalProps) 
         <span>Register Farmgate Harvest</span>
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            {/* Header */}
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} maxWidth="max-w-lg">
+        {/* Header */}
             <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-sm tracking-tight flex items-center gap-2">
@@ -273,9 +272,7 @@ export function RegisterHarvestModal({ cropCycles }: RegisterHarvestModalProps) 
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </Modal>
     </>
   );
 }

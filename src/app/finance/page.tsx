@@ -159,7 +159,7 @@ export default async function FinancePage() {
                         {p.status === "SETTLED" ? (
                           <span className="text-emerald-700 font-bold">Cleared</span>
                         ) : (
-                          <span>Due: {p.dueDate.toISOString().slice(5, 10)}</span>
+                          <span>Due: {(p.dueDate instanceof Date ? p.dueDate : new Date(p.dueDate)).toISOString().slice(5, 10)}</span>
                         )}
                       </td>
                       <td className="px-4 py-3.5">
@@ -214,8 +214,8 @@ export default async function FinancePage() {
                 <p className="text-slate-500">Method: {s.payoutMethod} &bull; Hours to Settle: <span className="font-bold text-emerald-700">{s.hoursToSettle} hrs</span></p>
               </div>
               <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-                <span>Recipient: {s.farmerProfile.user.name}</span>
-                <span>Cleared: {s.disbursedAt.toISOString().slice(0, 16).replace("T", " ")}</span>
+                <span>Recipient: {s.farmerProfile?.user?.name || "Farmer"}</span>
+                <span>Cleared: {(s.disbursedAt instanceof Date ? s.disbursedAt : new Date(s.disbursedAt)).toISOString().slice(0, 16).replace("T", " ")}</span>
               </div>
             </div>
           ))}

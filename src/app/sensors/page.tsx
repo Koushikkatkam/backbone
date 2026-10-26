@@ -78,8 +78,8 @@ export default async function SensorsPage() {
   const chartReadings = primaryDevice
     ? (primaryDevice.readings || []).map((r: any) => ({
         id: r.id,
-        timestamp: r.timestamp.toISOString(),
-        timeLabel: r.timestamp.toISOString().slice(11, 16),
+        timestamp: (r.timestamp instanceof Date ? r.timestamp : new Date(r.timestamp)).toISOString(),
+        timeLabel: (r.timestamp instanceof Date ? r.timestamp : new Date(r.timestamp)).toISOString().slice(11, 16),
         soilMoisturePercent: r.soilMoisturePercent,
         ambientTemperatureC: r.ambientTemperatureC,
         relativeHumidityPercent: r.relativeHumidityPercent,
@@ -258,7 +258,7 @@ export default async function SensorsPage() {
 
                   <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono">
                     <span>Protocol: {d.protocol}</span>
-                    <span>Last Synced: {d.lastSeenAt.toISOString().slice(11, 16)} UTC</span>
+                    <span>Last Synced: {d.lastSeenAt ? (d.lastSeenAt instanceof Date ? d.lastSeenAt : new Date(d.lastSeenAt)).toISOString().slice(11, 16) : "--:--"} UTC</span>
                   </div>
                 </CardContent>
               </Card>

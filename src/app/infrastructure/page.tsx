@@ -187,7 +187,7 @@ export default async function InfrastructurePage() {
                   <Wrench className="w-3.5 h-3.5 text-slate-500" />
                   {log.category} &bull; {log.farmUnit.name}
                 </span>
-                <span className="font-mono text-slate-400 text-[11px]">{log.performedAt.toISOString().slice(0, 10)}</span>
+                <span className="font-mono text-slate-400 text-[11px]">{(log.performedAt instanceof Date ? log.performedAt : new Date(log.performedAt)).toISOString().slice(0, 10)}</span>
               </div>
               <p className="text-slate-600">{log.description}</p>
               <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-500 font-medium">

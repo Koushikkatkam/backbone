@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { DEMO_USERS, DemoUserOption } from "@/lib/constants";
-import { useRouter } from "next/navigation";
 import { UserCheck, ChevronDown, Check, ShieldAlert } from "lucide-react";
 import { Role } from "@prisma/client";
 
@@ -16,7 +15,6 @@ interface DemoAccountSwitcherProps {
 }
 
 export function DemoAccountSwitcher({ currentUser }: DemoAccountSwitcherProps) {
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
 
@@ -34,7 +32,7 @@ export function DemoAccountSwitcher({ currentUser }: DemoAccountSwitcherProps) {
       });
       if (res.ok) {
         setIsOpen(false);
-        window.location.href = user.primaryActionUrl;
+        window.location.assign(user.primaryActionUrl);
         return;
       }
     } catch (err) {

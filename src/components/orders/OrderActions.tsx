@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Truck, Ban, Loader2, X, AlertCircle } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
 
 interface OrderActionsProps {
   order: {
@@ -134,10 +135,8 @@ export function OrderActions({ order }: OrderActionsProps) {
       )}
 
       {/* Cancel Modal */}
-      {isCancelOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-6 py-4 bg-rose-900 text-white flex items-center justify-between">
+      <Modal isOpen={isCancelOpen} onClose={() => setIsCancelOpen(false)} maxWidth="max-w-md">
+        <div className="px-6 py-4 bg-rose-900 text-white flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-sm">Cancel Order {order.orderNumber}</h3>
                 <p className="text-[11px] text-rose-200">
@@ -192,15 +191,11 @@ export function OrderActions({ order }: OrderActionsProps) {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Schedule Pickup Modal */}
-      {isScheduleOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
+      <Modal isOpen={isScheduleOpen} onClose={() => setIsScheduleOpen(false)} maxWidth="max-w-md">
+        <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-sm">Schedule Cold-Chain Transit</h3>
                 <p className="text-[11px] text-slate-300">
@@ -297,9 +292,7 @@ export function OrderActions({ order }: OrderActionsProps) {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </Modal>
     </div>
   );
 }

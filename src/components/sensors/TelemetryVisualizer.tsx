@@ -21,6 +21,7 @@ import {
   ShieldCheck,
   Radio,
 } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
 
 interface TelemetryPoint {
   id: string;
@@ -304,10 +305,9 @@ export function TelemetryVisualizer({ device, readings, allFarms }: TelemetryVis
       </div>
 
       {/* Simulated Pump/Fertigation Control Modal */}
-      {isControlOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-xs">
-            <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
+      <Modal isOpen={isControlOpen} onClose={() => setIsControlOpen(false)} maxWidth="max-w-lg">
+        <div className="text-xs">
+          <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
               <div>
                 <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider">
                   Simulated Hardware Control
@@ -450,9 +450,8 @@ export function TelemetryVisualizer({ device, readings, allFarms }: TelemetryVis
                 </button>
               </div>
             </form>
-          </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

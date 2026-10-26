@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Wrench, Loader2, X, AlertCircle, ArrowUpRight } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
 
 interface FarmActionsProps {
   farmId: string;
@@ -116,99 +117,97 @@ export function FarmActions({ farmId, farmName, activeCycle }: FarmActionsProps)
       </button>
 
       {/* Maintenance Modal */}
-      {isMaintOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-xs">
-            <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-sm">Log Unit Maintenance</h3>
-                <p className="text-[11px] text-slate-300">
-                  Records servicing activity for {farmName}.
-                </p>
+      <Modal isOpen={isMaintOpen} onClose={() => setIsMaintOpen(false)} maxWidth="max-w-md">
+        <div className="text-xs">
+          <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-sm">Log Unit Maintenance</h3>
+              <p className="text-[11px] text-slate-300">
+                Records servicing activity for {farmName}.
+              </p>
+            </div>
+            <button onClick={() => setIsMaintOpen(false)} className="text-slate-400 hover:text-white">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <form onSubmit={handleMaintenanceSubmit} className="p-6 space-y-4">
+            {maintError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                <span>{maintError}</span>
               </div>
-              <button onClick={() => setIsMaintOpen(false)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
+            )}
+
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Category / Task</label>
+              <input
+                type="text"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full p-2 border border-slate-200 rounded-lg text-[#0F1D2F] outline-none"
+                required
+              />
             </div>
 
-            <form onSubmit={handleMaintenanceSubmit} className="p-6 space-y-4">
-              {maintError && (
-                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-                  <span>{maintError}</span>
-                </div>
-              )}
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Technician / Performed By</label>
+              <input
+                type="text"
+                value={performedBy}
+                onChange={(e) => setPerformedBy(e.target.value)}
+                className="w-full p-2 border border-slate-200 rounded-lg text-[#0F1D2F] outline-none"
+                required
+              />
+            </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Category / Task</label>
-                <input
-                  type="text"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-lg text-[#0F1D2F] outline-none"
-                  required
-                />
-              </div>
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Cost (INR)</label>
+              <input
+                type="number"
+                min="0"
+                value={cost}
+                onChange={(e) => setCost(parseFloat(e.target.value) || 0)}
+                className="w-full p-2 border border-slate-200 rounded-lg text-[#0F1D2F] outline-none font-bold"
+              />
+            </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Technician / Performed By</label>
-                <input
-                  type="text"
-                  value={performedBy}
-                  onChange={(e) => setPerformedBy(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-lg text-[#0F1D2F] outline-none"
-                  required
-                />
-              </div>
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Description &amp; Checklist Notes</label>
+              <textarea
+                rows={2}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full p-2 border border-slate-200 rounded-lg text-[#0F1D2F] outline-none text-xs"
+                required
+              />
+            </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Cost (INR)</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={cost}
-                  onChange={(e) => setCost(parseFloat(e.target.value) || 0)}
-                  className="w-full p-2 border border-slate-200 rounded-lg text-[#0F1D2F] outline-none font-bold"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Description &amp; Checklist Notes</label>
-                <textarea
-                  rows={2}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-lg text-[#0F1D2F] outline-none text-xs"
-                  required
-                />
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setIsMaintOpen(false)}
-                  className="px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 font-semibold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={maintLoading}
-                  className="px-5 py-2 rounded-lg bg-[#1B532D] hover:bg-[#133E21] text-white font-semibold flex items-center gap-1.5 shadow-xs disabled:opacity-50"
-                >
-                  {maintLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Save Record</span>
-                </button>
-              </div>
-            </form>
-          </div>
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsMaintOpen(false)}
+                className="px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={maintLoading}
+                className="px-5 py-2 rounded-lg bg-[#1B532D] hover:bg-[#133E21] text-white font-semibold flex items-center gap-1.5 shadow-xs disabled:opacity-50"
+              >
+                {maintLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                <span>Save Record</span>
+              </button>
+            </div>
+          </form>
         </div>
-      )}
+      </Modal>
 
       {/* Stage Modal */}
-      {isStageOpen && activeCycle && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-xs">
+      {activeCycle && (
+        <Modal isOpen={isStageOpen} onClose={() => setIsStageOpen(false)} maxWidth="max-w-md">
+          <div className="text-xs">
             <div className="px-6 py-4 bg-[#0F1D2F] text-white flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-sm">Advance Growth Stage</h3>
@@ -264,7 +263,7 @@ export function FarmActions({ farmId, farmName, activeCycle }: FarmActionsProps)
               </div>
             </form>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
