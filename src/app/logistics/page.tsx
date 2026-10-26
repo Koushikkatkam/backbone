@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { prisma } from "@/lib/prisma";
@@ -8,52 +9,67 @@ import { Truck, Thermometer, ShieldCheck, MapPin, CheckCircle2 } from "lucide-re
 import { LogisticsActions } from "@/components/logistics/LogisticsActions";
 
 export default async function LogisticsPage() {
-  const [shipments, pendingOrders] = await Promise.all([
-    prisma.shipment.findMany({
-      include: {
-        order: {
-          include: {
-            buyerProfile: true,
-            orderLines: {
-              include: {
-                harvestLot: {
-                  include: {
-                    harvestRecord: {
-                      include: { farmUnit: true, cropCycle: { include: { cropCatalogue: true } } },
+  let shipments: any[] = [];
+  let pendingOrders: any[] = [];
+
+  try {
+    const results = await Promise.all([
+      prisma.shipment.findMany({
+        include: {
+          order: {
+            include: {
+              buyerProfile: true,
+              orderLines: {
+                include: {
+                  harvestLot: {
+                    include: {
+                      harvestRecord: {
+                        include: { farmUnit: true, cropCycle: { include: { cropCatalogue: true } } },
+                      },
                     },
                   },
                 },
               },
             },
           },
+          driver: true,
+          qualityInspection: true,
         },
-        driver: true,
-        qualityInspection: true,
-      },
-      orderBy: { scheduledPickupTime: "desc" },
-    }),
-    prisma.order.findMany({
-      where: {
-        status: { in: ["RESERVED", "CONFIRMED"] },
-        shipments: { none: {} },
-      },
-      include: {
-        buyerProfile: true,
-        orderLines: {
-          include: {
-            harvestLot: {
-              include: {
-                harvestRecord: {
-                  include: { farmUnit: true, cropCycle: { include: { cropCatalogue: true } } },
+        orderBy: { scheduledPickupTime: "desc" },
+      }),
+      prisma.order.findMany({
+        where: {
+          status: { in: ["RESERVED", "CONFIRMED"] },
+          shipments: { none: {} },
+        },
+        include: {
+          buyerProfile: true,
+          orderLines: {
+            include: {
+              harvestLot: {
+                include: {
+                  harvestRecord: {
+                    include: { farmUnit: true, cropCycle: { include: { cropCatalogue: true } } },
+                  },
                 },
               },
             },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-  ]);
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+    shipments = results[0];
+    pendingOrders = results[1];
+  } catch (err) {
+    console.warn("Database unavailable in LogisticsPage, using fallback shipments:", err);
+  }
+
+  if (shipments.length === 0) {
+    const { FALLBACK_SHIPMENTS, FALLBACK_ORDERS } = await import("@/server/fallbackData");
+    shipments = FALLBACK_SHIPMENTS;
+    pendingOrders = FALLBACK_ORDERS;
+  }
 
   return (
     <AppShell>

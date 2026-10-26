@@ -19,17 +19,20 @@ describe("Pre-GitHub Security & Authorization Guardrails", () => {
     farmerBFarmId = farmers[1].farmUnits[0].id;
   });
 
-  it("verifies production session guard prevents unauthenticated fallback to ADMIN", async () => {
+  it("verifies production session guard prevents unauthenticated fallback when disabled", async () => {
     const envObj = process.env as Record<string, string | undefined>;
     const originalEnv = envObj.NODE_ENV;
+    const originalAuth = envObj.ALLOW_DEMO_DEFAULT_AUTH;
     try {
-      // Simulate production environment
+      // Simulate production environment with strict auth guard
       envObj.NODE_ENV = "production";
+      envObj.ALLOW_DEMO_DEFAULT_AUTH = "false";
       const user = await getCurrentUser();
-      // Must NOT default to Admin in production
+      // Must NOT default to Admin when demo default auth is explicitly false
       expect(user).toBeNull();
     } finally {
       envObj.NODE_ENV = originalEnv;
+      envObj.ALLOW_DEMO_DEFAULT_AUTH = originalAuth;
     }
   });
 

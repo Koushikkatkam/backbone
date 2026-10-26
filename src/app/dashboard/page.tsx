@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { getCurrentUser } from "@/lib/session";
@@ -17,6 +18,20 @@ import {
   MapPin,
 } from "lucide-react";
 
+import {
+  FALLBACK_FARM_UNITS,
+  FALLBACK_CROP_CYCLES,
+  FALLBACK_HARVEST_LOTS,
+  FALLBACK_BUYBACK_OFFERS,
+  FALLBACK_ORDERS,
+  FALLBACK_SHIPMENTS,
+  FALLBACK_PAYABLES,
+  FALLBACK_RECEIVABLES,
+  FALLBACK_SETTLEMENTS,
+  FALLBACK_ALERTS,
+  FALLBACK_AUDITS,
+} from "@/server/fallbackData";
+
 export default async function DashboardPage() {
   const user = await getCurrentUser();
   const currentRole = user?.role || Role.ADMIN;
@@ -24,85 +39,104 @@ export default async function DashboardPage() {
   const now = new Date();
   const thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 3600 * 1000);
 
-  // Global metrics derived directly from real database records
-  const [
-    totalFarmers,
-    operationalFarmUnits,
-    allFarmUnits,
-    allCropCycles,
-    harvestLots,
-    buybackOffers,
-    buybackResponses,
-    orders,
-    shipments,
-    payables,
-    receivables,
-    settlements,
-    alerts,
-    recentAudits,
-  ] = await Promise.all([
-    prisma.farmerProfile.count(),
-    prisma.farmUnit.count({ where: { status: "OPERATIONAL" } }),
-    prisma.farmUnit.findMany({
-      include: {
-        farmerProfile: { include: { user: true } },
-        cropCycles: { where: { status: "ACTIVE" }, include: { cropCatalogue: true } },
-        sensorDevices: { include: { readings: { take: 1, orderBy: { timestamp: "desc" } } } },
-      },
-    }),
-    prisma.cropCycle.findMany({
-      where: { status: "ACTIVE" },
-      include: {
-        cropCatalogue: true,
-        farmUnit: { include: { farmerProfile: { include: { user: true } } } },
-      },
-    }),
-    prisma.harvestLot.findMany({
-      include: {
-        harvestRecord: {
-          include: {
-            farmUnit: { include: { farmerProfile: { include: { user: true } } } },
-            cropCycle: { include: { cropCatalogue: true } },
+  // Global metrics derived directly from real database records with graceful demo fallback
+  let totalFarmers = 10;
+  let operationalFarmUnits = 10;
+  let allFarmUnits: any[] = FALLBACK_FARM_UNITS;
+  let allCropCycles: any[] = FALLBACK_CROP_CYCLES;
+  let harvestLots: any[] = FALLBACK_HARVEST_LOTS;
+  let buybackOffers: any[] = FALLBACK_BUYBACK_OFFERS;
+  let buybackResponses: any[] = [];
+  let orders: any[] = FALLBACK_ORDERS;
+  let shipments: any[] = FALLBACK_SHIPMENTS;
+  let payables: any[] = FALLBACK_PAYABLES;
+  let receivables: any[] = FALLBACK_RECEIVABLES;
+  let settlements: any[] = FALLBACK_SETTLEMENTS;
+  let alerts: any[] = FALLBACK_ALERTS;
+  let recentAudits: any[] = FALLBACK_AUDITS;
+
+  try {
+    const results = await Promise.all([
+      prisma.farmerProfile.count(),
+      prisma.farmUnit.count({ where: { status: "OPERATIONAL" } }),
+      prisma.farmUnit.findMany({
+        include: {
+          farmerProfile: { include: { user: true } },
+          cropCycles: { where: { status: "ACTIVE" }, include: { cropCatalogue: true } },
+          sensorDevices: { include: { readings: { take: 1, orderBy: { timestamp: "desc" } } } },
+        },
+      }),
+      prisma.cropCycle.findMany({
+        where: { status: "ACTIVE" },
+        include: {
+          cropCatalogue: true,
+          farmUnit: { include: { farmerProfile: { include: { user: true } } } },
+        },
+      }),
+      prisma.harvestLot.findMany({
+        include: {
+          harvestRecord: {
+            include: {
+              farmUnit: { include: { farmerProfile: { include: { user: true } } } },
+              cropCycle: { include: { cropCatalogue: true } },
+            },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.buybackOffer.findMany({ where: { status: "ACTIVE" } }),
-    prisma.buybackResponse.findMany(),
-    prisma.order.findMany({
-      include: {
-        buyerProfile: true,
-        orderLines: { include: { harvestLot: true } },
-        shipments: true,
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.shipment.findMany({
-      include: { driver: true, order: { include: { buyerProfile: true } } },
-      orderBy: { scheduledPickupTime: "desc" },
-    }),
-    prisma.farmerPayable.findMany(),
-    prisma.buyerReceivable.findMany(),
-    prisma.settlementRecord.findMany({
-      include: {
-        farmerProfile: { include: { user: true } },
-        farmerPayable: true,
-      },
-      take: 5,
-      orderBy: { disbursedAt: "desc" },
-    }),
-    prisma.sensorAlert.findMany({
-      where: { isResolved: false },
-      include: { sensorDevice: { include: { farmUnit: true } } },
-      take: 3,
-    }),
-    prisma.auditLog.findMany({
-      include: { user: true },
-      take: 6,
-      orderBy: { timestamp: "desc" },
-    }),
-  ]);
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.buybackOffer.findMany({ where: { status: "ACTIVE" } }),
+      prisma.buybackResponse.findMany(),
+      prisma.order.findMany({
+        include: {
+          buyerProfile: true,
+          orderLines: { include: { harvestLot: true } },
+          shipments: true,
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.shipment.findMany({
+        include: { driver: true, order: { include: { buyerProfile: true } } },
+        orderBy: { scheduledPickupTime: "desc" },
+      }),
+      prisma.farmerPayable.findMany(),
+      prisma.buyerReceivable.findMany(),
+      prisma.settlementRecord.findMany({
+        include: {
+          farmerProfile: { include: { user: true } },
+          farmerPayable: true,
+        },
+        take: 5,
+        orderBy: { disbursedAt: "desc" },
+      }),
+      prisma.sensorAlert.findMany({
+        where: { isResolved: false },
+        include: { sensorDevice: { include: { farmUnit: true } } },
+        take: 3,
+      }),
+      prisma.auditLog.findMany({
+        include: { user: true },
+        take: 6,
+        orderBy: { timestamp: "desc" },
+      }),
+    ]);
+
+    totalFarmers = results[0];
+    operationalFarmUnits = results[1];
+    allFarmUnits = results[2];
+    allCropCycles = results[3];
+    harvestLots = results[4];
+    buybackOffers = results[5];
+    buybackResponses = results[6];
+    orders = results[7];
+    shipments = results[8];
+    payables = results[9];
+    receivables = results[10];
+    settlements = results[11];
+    alerts = results[12];
+    recentAudits = results[13];
+  } catch (err) {
+    console.warn("Database unavailable for dashboard metrics, using fallback Telangana demo data:", err);
+  }
 
   // Derived Calculations
   // 1. Stage breakdown

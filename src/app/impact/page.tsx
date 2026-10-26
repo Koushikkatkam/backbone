@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { prisma } from "@/lib/prisma";
@@ -19,47 +20,69 @@ export default async function ImpactPage({
   if (districtFilter) farmWhere.farmerProfile = { district: districtFilter };
   if (tierFilter) farmWhere.tier = tierFilter as InfrastructureTier;
 
-  // Fetch real records for calculated metrics
-  const [
-    harvestRecords,
-    activeCycles,
-    harvestLots,
-    buybackOffers,
-    buybackResponses,
-    shipments,
-    qualityInspections,
-    settlementRecords,
-    targets,
-  ] = await Promise.all([
-    prisma.harvestRecord.findMany({
-      where: { farmUnit: farmWhere },
-      include: { lots: true },
-    }),
-    prisma.cropCycle.findMany({
-      where: { status: "ACTIVE", farmUnit: farmWhere },
-    }),
-    prisma.harvestLot.findMany({
-      where: { harvestRecord: { farmUnit: farmWhere } },
-    }),
-    prisma.buybackOffer.findMany({
-      where: { status: "ACTIVE" },
-      include: { responses: true },
-    }),
-    prisma.buybackResponse.findMany(),
-    prisma.shipment.findMany({
-      include: { order: { include: { orderLines: true } } },
-    }),
-    prisma.qualityInspection.findMany(),
-    prisma.settlementRecord.findMany(),
-    prisma.impactMetricTarget.findMany({
-      orderBy: { baselineValue: "asc" },
-    }),
-  ]);
+  // Fetch real records for calculated metrics with fallback
+  let harvestRecords: any[] = [];
+  let activeCycles: any[] = [];
+  let harvestLots: any[] = [];
+  let buybackOffers: any[] = [];
+  let buybackResponses: any[] = [];
+  let shipments: any[] = [];
+  let qualityInspections: any[] = [];
+  let settlementRecords: any[] = [];
+  let targets: any[] = [];
+
+  try {
+    const results = await Promise.all([
+      prisma.harvestRecord.findMany({
+        where: { farmUnit: farmWhere },
+        include: { lots: true },
+      }),
+      prisma.cropCycle.findMany({
+        where: { status: "ACTIVE", farmUnit: farmWhere },
+      }),
+      prisma.harvestLot.findMany({
+        where: { harvestRecord: { farmUnit: farmWhere } },
+      }),
+      prisma.buybackOffer.findMany({
+        where: { status: "ACTIVE" },
+        include: { responses: true },
+      }),
+      prisma.buybackResponse.findMany(),
+      prisma.shipment.findMany({
+        include: { order: { include: { orderLines: true } } },
+      }),
+      prisma.qualityInspection.findMany(),
+      prisma.settlementRecord.findMany(),
+      prisma.impactMetricTarget.findMany({
+        orderBy: { baselineValue: "asc" },
+      }),
+    ]);
+    harvestRecords = results[0];
+    activeCycles = results[1];
+    harvestLots = results[2];
+    buybackOffers = results[3];
+    buybackResponses = results[4];
+    shipments = results[5];
+    qualityInspections = results[6];
+    settlementRecords = results[7];
+    targets = results[8];
+  } catch (err) {
+    console.warn("Database unavailable in ImpactPage, using fallback targets:", err);
+  }
+
+  if (targets.length === 0) {
+    targets = [
+      { id: "tgt-1", metricKey: "INCOME_MULTIPLIER", metricName: "Farmer Net Income Multiplier", targetValue: "2.4x", baselineValue: "1.0x", unit: "Multiplier", strategicGoal: "2.4x net return over conventional paddy" },
+      { id: "tgt-2", metricKey: "POST_HARVEST_LOSS", metricName: "Post-Harvest Loss Rate", targetValue: "< 5.0%", baselineValue: "28.5%", unit: "Percentage", strategicGoal: "Cold-chain protection & farmgate crating" },
+      { id: "tgt-3", metricKey: "WATER_SAVED", metricName: "Water Conservation Rate", targetValue: "90%", baselineValue: "Baseline Flood", unit: "Percentage", strategicGoal: "Closed-loop hydroponic recirculating" },
+      { id: "tgt-4", metricKey: "PAYOUT_SPEED", metricName: "Instant Farmer Payout SLA", targetValue: "< 24 Hours", baselineValue: "45-90 Days", unit: "Hours", strategicGoal: "Digital UPI release post QC inspection" },
+    ];
+  }
 
   // Metric 1: Post-Harvest Loss Rate = (Gross - Marketable) / Gross
-  const totalGrossHarvestKg = harvestRecords.reduce((acc, h) => acc + h.grossQuantityKg, 0);
+  const totalGrossHarvestKg = harvestRecords.reduce((acc: number, h: any) => acc + (h.grossQuantityKg || 0), 0);
   const totalMarketableHarvestKg = harvestRecords.reduce(
-    (acc, h) => acc + h.lots.reduce((sum, l) => sum + l.initialQuantityKg, 0),
+    (acc: number, h: any) => acc + (h.lots || []).reduce((sum: number, l: any) => sum + (l.initialQuantityKg || 0), 0),
     0
   );
   const postHarvestLossRate =
@@ -68,18 +91,18 @@ export default async function ImpactPage({
       : "3.8";
 
   // Metric 2: Forecast Yield vs Confirmed Marketable Stock
-  const forecastYieldKg = activeCycles.reduce((acc, c) => acc + c.targetYieldKg, 0);
-  const confirmedMarketableKg = harvestLots.reduce((acc, l) => acc + l.availableQuantityKg, 0);
+  const forecastYieldKg = activeCycles.reduce((acc: number, c: any) => acc + (c.targetYieldKg || 0), 0);
+  const confirmedMarketableKg = harvestLots.reduce((acc: number, l: any) => acc + (l.availableQuantityKg || 0), 0);
 
   // Metric 3: Offered vs Accepted Buyback Produce
-  const buybackOfferedKg = buybackOffers.reduce((acc, o) => acc + o.maxQuantityKg, 0);
-  const buybackAcceptedKg = buybackResponses.reduce((acc, r) => acc + r.committedQuantityKg, 0);
+  const buybackOfferedKg = buybackOffers.reduce((acc: number, o: any) => acc + (o.maxQuantityKg || 0), 0);
+  const buybackAcceptedKg = buybackResponses.reduce((acc: number, r: any) => acc + (r.committedQuantityKg || 0), 0);
 
   // Metric 4: Dispatched vs Delivered Produce
   const dispatchedKg = shipments
-    .filter((s) => s.status === "IN_TRANSIT" || s.status === "DELIVERED")
-    .reduce((acc, s) => acc + s.order.orderLines.reduce((sum, l) => sum + l.quantityKg, 0), 0);
-  const deliveredKg = qualityInspections.reduce((acc, q) => acc + q.acceptedQuantityKg, 0);
+    .filter((s: any) => s.status === "IN_TRANSIT" || s.status === "DELIVERED")
+    .reduce((acc: number, s: any) => acc + (s.order?.orderLines || []).reduce((sum: number, l: any) => sum + (l.quantityKg || 0), 0), 0);
+  const deliveredKg = qualityInspections.reduce((acc: number, q: any) => acc + (q.acceptedQuantityKg || 0), 0);
 
   // Metric 5: 24-Hour Settlement Compliance Rate
   const totalSettlements = settlementRecords.length;

@@ -12,9 +12,11 @@ import Link from "next/link";
 export default function LoginPage() {
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSignIn = async (user: DemoUserOption) => {
     setLoadingId(user.id);
+    setErrorMessage(null);
     try {
       const res = await fetch("/api/v1/auth/session", {
         method: "POST",
@@ -22,11 +24,16 @@ export default function LoginPage() {
         body: JSON.stringify({ userId: user.id }),
       });
       if (res.ok) {
-        router.push(user.primaryActionUrl);
-        router.refresh();
+        window.location.href = user.primaryActionUrl;
+        return;
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || "Failed to activate demo identity. Please try again.");
       }
     } catch (error) {
       console.error("Sign-in failed", error);
+      setErrorMessage("Network connectivity issue. Please reload and try again.");
+    } finally {
       setLoadingId(null);
     }
   };
@@ -36,6 +43,17 @@ export default function LoginPage() {
       <PrototypeBanner />
 
       <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
+        {errorMessage && (
+          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-medium flex items-center justify-between">
+            <span>{errorMessage}</span>
+            <button
+              onClick={() => setErrorMessage(null)}
+              className="text-red-600 hover:text-red-800 font-bold ml-4 cursor-pointer"
+            >
+              &times;
+            </button>
+          </div>
+        )}
         <div className="text-center mb-10">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-[#1B532D] flex items-center justify-center text-white shadow-sm">

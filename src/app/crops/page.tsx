@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { prisma } from "@/lib/prisma";
@@ -6,34 +7,51 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatINR } from "@/lib/utils";
 
 export default async function CropsPage() {
-  const [catalogues, cycles, observations] = await Promise.all([
-    prisma.cropCatalogue.findMany({ orderBy: { name: "asc" } }),
-    prisma.cropCycle.findMany({
-      include: {
-        cropCatalogue: true,
-        farmUnit: {
-          include: { farmerProfile: { include: { user: true } } },
-        },
-        growthObservations: {
-          orderBy: { observedDate: "desc" },
-          take: 1,
-        },
-      },
-      orderBy: { plantedDate: "desc" },
-    }),
-    prisma.growthObservation.findMany({
-      include: {
-        cropCycle: {
-          include: {
-            cropCatalogue: true,
-            farmUnit: true,
+  let catalogues: any[] = [];
+  let cycles: any[] = [];
+  let observations: any[] = [];
+
+  try {
+    const results = await Promise.all([
+      prisma.cropCatalogue.findMany({ orderBy: { name: "asc" } }),
+      prisma.cropCycle.findMany({
+        include: {
+          cropCatalogue: true,
+          farmUnit: {
+            include: { farmerProfile: { include: { user: true } } },
+          },
+          growthObservations: {
+            orderBy: { observedDate: "desc" },
+            take: 1,
           },
         },
-      },
-      orderBy: { observedDate: "desc" },
-      take: 6,
-    }),
-  ]);
+        orderBy: { plantedDate: "desc" },
+      }),
+      prisma.growthObservation.findMany({
+        include: {
+          cropCycle: {
+            include: {
+              cropCatalogue: true,
+              farmUnit: true,
+            },
+          },
+        },
+        orderBy: { observedDate: "desc" },
+        take: 6,
+      }),
+    ]);
+    catalogues = results[0];
+    cycles = results[1];
+    observations = results[2];
+  } catch (err) {
+    console.warn("Database unavailable in CropsPage, using fallback crop data:", err);
+  }
+
+  if (catalogues.length === 0) {
+    const { FALLBACK_CROP_CATALOGUES, FALLBACK_CROP_CYCLES } = await import("@/server/fallbackData");
+    catalogues = FALLBACK_CROP_CATALOGUES;
+    cycles = FALLBACK_CROP_CYCLES;
+  }
 
   return (
     <AppShell>

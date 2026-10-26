@@ -34,8 +34,8 @@ export function DemoAccountSwitcher({ currentUser }: DemoAccountSwitcherProps) {
       });
       if (res.ok) {
         setIsOpen(false);
-        router.refresh();
-        router.push(user.primaryActionUrl);
+        window.location.href = user.primaryActionUrl;
+        return;
       }
     } catch (err) {
       console.error("Error switching user:", err);

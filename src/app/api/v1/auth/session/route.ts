@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser, setSessionUser, clearSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -29,18 +30,45 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const parsed = SwitchUserSchema.parse(body);
 
-    let targetUser = null;
+    let targetUser: any = null;
 
-    if (parsed.userId) {
-      targetUser = await prisma.user.findUnique({
-        where: { id: parsed.userId },
-        include: { farmerProfile: true, buyerProfile: true },
-      });
-    } else if (parsed.role) {
-      targetUser = await prisma.user.findFirst({
-        where: { role: parsed.role as Role },
-        include: { farmerProfile: true, buyerProfile: true },
-      });
+    // 1. Try DB lookup first
+    try {
+      if (parsed.userId) {
+        targetUser = await prisma.user.findUnique({
+          where: { id: parsed.userId },
+          include: { farmerProfile: true, buyerProfile: true },
+        });
+      } else if (parsed.role) {
+        targetUser = await prisma.user.findFirst({
+          where: { role: parsed.role as Role },
+          include: { farmerProfile: true, buyerProfile: true },
+        });
+      }
+    } catch (dbErr) {
+      console.warn("Database lookup failed during session switch, using demo fallback:", dbErr);
+    }
+
+    // 2. Resilient Fallback: If DB query fails or user record is not yet seeded on Vercel
+    if (!targetUser) {
+      const demoUser = DEMO_USERS.find(
+        (u) => u.id === parsed.userId || (parsed.role && u.role === parsed.role)
+      );
+      if (demoUser) {
+        targetUser = {
+          id: demoUser.id,
+          email: demoUser.email,
+          name: demoUser.name,
+          role: demoUser.role,
+          avatarUrl: null,
+          phone: "+91 98490 12345",
+          isActive: true,
+          status: "ACTIVE",
+          isDemo: true,
+          farmerProfile: demoUser.role === Role.FARMER ? { id: "prof-farmer-01", userId: demoUser.id, farmUnitId: "farm-unit-01" } : null,
+          buyerProfile: demoUser.role === Role.BUYER ? { id: "bp-01", userId: demoUser.id } : null,
+        };
+      }
     }
 
     if (!targetUser) {
